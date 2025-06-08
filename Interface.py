@@ -229,7 +229,7 @@ def roundrobininsert(ratingstablename, userid, itemid, rating, openconnection):
     Hàm chèn một bản ghi mới vào bảng ratings và bảng phân mảnh round-robin tương ứng.
     - Mục đích: Thêm bản ghi vào bảng chính (ratings) và một bảng rrobin_partX dựa trên thứ tự chèn.
     - Tác dụng: Duy trì phân bố đều dữ liệu trong các phân mảnh round-robin.
-    - Quy trình: Chèn bản ghi vào ratings, đếm số bản ghi hiện tại để xác định phân mảnh, chèn vào rrobin_partX.
+    - Quy trình: Chèn bản ghi vào ratings, lấy phân mảnh tiếp theo trong metadata, chèn vào rrobin_partX.
 
     Tham số:
     - ratingstablename (str): Tên bảng ratings.
@@ -270,7 +270,7 @@ def roundrobininsert(ratingstablename, userid, itemid, rating, openconnection):
     next_use = cur.fetchone()[0]
     cur.execute("UPDATE roundrobin_metadata SET next_use_partition=next_use_partition+1;")
     # Tính chỉ số phân mảnh dựa trên thứ tự chèn
-    # index: (total_rows - 1) % numberofpartitions để chọn bảng theo vòng tròn
+    # index: (next_use) % numberofpartitions để chọn bảng theo vòng tròn
     index = (next_use) % numberofpartitions
     table_name = RROBIN_TABLE_PREFIX + str(index)  # Tên bảng: rrobin_partX
     
